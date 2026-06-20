@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstroCompute - Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0b0f19;
+            color: #ffffff;
+            margin: 0;
+            padding: 40px;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2a3441;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+        .dashboard-header h1 { margin: 0; color: #00d4ff; font-size: 28px;}
+        
+        .main-content {
+            display: flex;
+            gap: 40px;
+        }
+        .compute-terminal {
+            flex-grow: 1;
+            background: #151a2a;
+            border: 1px solid #2a3441;
+            border-radius: 8px;
+            padding: 30px;
+            min-height: 400px;
+        }
+        .terminal-text {
+            font-family: monospace;
+            color: #2e8b57;
+            margin-bottom: 10px;
+        }
+        .billing-panel {
+            width: 300px;
+            background: #151a2a;
+            border: 1px solid #2a3441;
+            border-radius: 8px;
+            padding: 30px;
+            height: fit-content;
+        }
+        .billing-panel h3 { margin-top: 0; color: #8898aa; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;}
+        
+        button {
+            background-color: #32325d;
+            color: white;
+            border: 1px solid #525f7f;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s ease;
+            margin-top: 20px;
+        }
+        button:hover { background-color: #525f7f; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-header">
+        <h1>AstroCompute Node: Active</h1>
+        <div style="color: #8898aa; font-size: 14px;">Status: Online</div>
+    </div>
+
+    <div class="main-content">
+        <div class="compute-terminal">
+            <div class="terminal-text">> Initializing Siril rendering pipeline...</div>
+            <div class="terminal-text">> Mounting 100GB NVMe storage volume...</div>
+            <div class="terminal-text">> Node is ready for dataset upload.</div>
+        </div>
+
+        <div class="billing-panel">
+            <h3>Account Settings</h3>
+            <p style="font-size: 14px; color: #c1c9d2; line-height: 1.5;">
+                Need more GPU power for deconvolution? Upgrade your compute node via the secure billing portal.
+            </p>
+            
+            <button onclick="manageBilling('{{ customer_id }}', this)">Manage Billing & Upgrades</button>
+        </div>
+    </div>
+
+    <script>
+        async function manageBilling(customerId, buttonElement) {
+            buttonElement.innerText = 'Loading Portal...';
+            buttonElement.disabled = true;
+
+            try {
+                const response = await fetch('/create-portal-session', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customer_id: customerId })
+                });
+                const data = await response.json();
+                
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    console.error("Error:", data.error);
+                    buttonElement.innerText = 'Error loading portal';
+                }
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                buttonElement.innerText = 'Manage Billing & Upgrades';
+                buttonElement.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
